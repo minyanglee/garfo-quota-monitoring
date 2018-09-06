@@ -9,7 +9,7 @@
 clear
 global wd "/home/mlee/Documents/projects/scraper/graphs_out"
 
-/* the do file hidden info contains a single global macro "my_network" gives access to my network drive on home2*/
+/* the do file hidden_info contains a single global macro "my_network" gives access to my network drive on home2*/
 
 do "/home/mlee/Documents/projects/scraper/code/hidden_info.do"
 cd "$wd"
