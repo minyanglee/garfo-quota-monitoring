@@ -15,7 +15,7 @@ library(foreign)
 library(data.table)
 
 YOUR.PROJECT.PATH<-"/home/mlee/Documents/projects/scraper/"
-YOUR.OUTPUT.PATH<-"/home/mlee/Documents/projects/scraper/daily_data_out/herring"
+YOUR.OUTPUT.PATH<-"/home/mlee/Documents/projects/scraper/daily_data_out/other"
 
 setwd(YOUR.PROJECT.PATH)
 
@@ -25,24 +25,25 @@ GARFO<-c("https://www.greateratlantic.fisheries.noaa.gov/ro/fso/reports/")
 GARFO.FOLDER<-c("herring/","HaddockBycatchReport/","Herring_RHS/","Mackerel_RHS/")
 dataset.names<-c("qm_herring","qm_haddock_catch_caps","qm_herring_rhs_catch_caps", "qm_mackerel_rhs_catch_caps")
 
-
+dataset.names.ext<-paste0(dataset.names,".Rdata")
 
 ###########################################################
 # You shouldn't need to edit anything below this line.
 ###########################################################
 tables.to.parse<-paste0(GARFO,GARFO.FOLDER,dataset.names,".html")
-storage.locations<-file.path(YOUR.OUTPUT.PATH,paste0(dataset.names,".Rdata"))
+storage.locations<-file.path(YOUR.OUTPUT.PATH,dataset.names.ext)
 
 
 #cast to lists
 tables.to.parse<-as.list(tables.to.parse)
 storage.locations<-as.list(storage.locations)
 dataset.names<-as.list(dataset.names)
+dataset.names.ext<-as.list(dataset.names.ext)
 
 
 # Do these files exist? If so, then do nothing. If not, then create a null R.data frame to hold stuff.
 test.exist<- function(check.these,df.names) {
-z<-which(list.files() == check.these)
+z<-which(list.files(YOUR.OUTPUT.PATH) == df.names)
 first_time<-length(z)<1
 
 {if (first_time==TRUE){ 
@@ -53,7 +54,7 @@ first_time<-length(z)<1
     }
   }
 }
-mapply(test.exist,storage.locations, dataset.names)
+mapply(test.exist,storage.locations, dataset.names.ext)
 
 
 
@@ -90,11 +91,16 @@ read.in.combine <- function(mytable) {
 
   myresults<-cbind(myresults,report_date, quota_period)
   myresults$report_date<-as.Date(myresults$report_date,"%Y-%m-%d")
+  
+  names(myresults)[names(myresults) == 'Sub-ACL** (mt)'] <- 'SubACL'
+  names(myresults)[names(myresults) == 'Sub-ACL (mt)'] <- 'SubACL'
   names(myresults)[names(myresults) == 'Quota (mt)'] <- 'Quota'
   names(myresults)[names(myresults) == 'Catch Cap'] <- 'CatchCap'
+  names(myresults)[names(myresults) == 'Cumulative Kept (mt)'] <- 'CumulativeKept'
+  names(myresults)[names(myresults) == 'Cumulative Discard (mt)'] <- 'CumulativeDiscard'
   names(myresults)[names(myresults) == 'Cumulative Catch (mt)'] <- 'CumulativeCatch'
   names(myresults)[names(myresults) == 'Percent Quota Caught'] <- 'PercentQuotaCaught'
-  
+    names(myresults)[names(myresults) == 'Percent Caught'] <- 'PercentCaught'
   myresults
 }
 
@@ -137,7 +143,7 @@ for (i in 1:len.clean) {
   # assign the values of temp to a new dataframe
   name<-paste(dataset.names[[i]])
   assign(name, temp)
-  save(list=name, file=storage[[i]])
+  save(list=name, file=storage.locations[[i]])
   write.dta(temp, file.path(YOUR.OUTPUT.PATH,paste0(dataset.names[[i]],".dta")))
   
   #shouldn't be necessary, but just in case
