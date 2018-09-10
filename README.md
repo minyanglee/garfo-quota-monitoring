@@ -1,5 +1,5 @@
 # garfo-quota-monitoring
-A collection of code to scrape GARFO's quota monitoring pages.
+A collection of code to scrape GARFO's quota monitoring pages. GARFO does quota monitoring updates every week, but the old versions are not updated on the internet.  This collection of code parses the GARFO quota monitoring tables and stores the data contained in those tables.  The construction (column headings in particular) of the tables varies slightly by FMP, so slightly different code is requires for many of these.
 
 # R scripts
 Both of the R scripts should run with very minor changes to directories
@@ -15,4 +15,4 @@ readin_others_from_web.R is an R script to download and parse the herring, haddo
 + https://www.greateratlantic.fisheries.noaa.gov/ro/fso/reports/Mackerel_RHS/qm_mackerel_rhs_catch_caps.html
 
 # Stata Wrapper
-batch_download_quota_monitoring.do is a stata .do file that calls the two scripts above. It also will make some simple exploratory graphs.  You'll need stata to run this file.  
+batch_download_quota_monitoring.do is a stata .do file that calls the scripts above. It makes some simple exploratory graphs and copies data and graphs to a shared drive where people can see it.  You'll need stata to run this file.  
