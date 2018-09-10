@@ -14,7 +14,6 @@ library(foreign)
 library(data.table)
 
 YOUR.PROJECT.PATH<-"/home/mlee/Documents/projects/scraper/"
-#YOUR.DATA.PATH<-"/home/mlee/Documents/projects/scraper/data_in"
 YOUR.OUTPUT.PATH<-"/home/mlee/Documents/projects/scraper/daily_data_out/groundfish"
 
 
@@ -27,7 +26,7 @@ GARFO<-c("https://www.greateratlantic.fisheries.noaa.gov/ro/fso/reports/")
 GARFO.FOLDER<-c("Sectors/","common_pool/" )
 dataset.names<-c("Sector_Summary_2018","Common_Pool_Summary_2018")
 
-
+dataset.names.ext<-paste0(dataset.names,".Rdata")
 
 
 ###########################################################
@@ -35,13 +34,32 @@ dataset.names<-c("Sector_Summary_2018","Common_Pool_Summary_2018")
 ###########################################################
 
 tables.to.parse<-paste0(GARFO,GARFO.FOLDER,dataset.names,".html")
-storage.locations<-file.path(YOUR.OUTPUT.PATH,paste0(dataset.names,".Rdata"))
+storage.locations<-file.path(YOUR.OUTPUT.PATH,dataset.names.ext)
 
 
 #cast to lists
 tables.to.parse<-as.list(tables.to.parse)
 storage.locations<-as.list(storage.locations)
-dataset.names<-as.list(table.names)
+dataset.names<-as.list(dataset.names)
+dataset.names.ext<-as.list(dataset.names.ext)
+
+
+# Do these files exist? If so, then do nothing. If not, then create a null R.data frame to hold stuff.
+test.exist<- function(check.these,df.names) {
+z<-which(list.files(YOUR.OUTPUT.PATH) == df.names)
+first_time<-length(z)<1
+
+{if (first_time==TRUE){ 
+  empty<-data.frame()
+  name<-paste(df.names)
+  assign(name, empty)
+  save(list=name, file=check.these)
+    }
+  }
+}
+mapply(test.exist,storage.locations, dataset.names.ext)
+
+
 ############################################# 
 ############### Define some functions. ############### 
 ############################################# 
@@ -73,38 +91,34 @@ read.in.combine <- function(mytable) {
   colnames(myresults) <- as.character(unlist(myresults[1,]))
   myresults = myresults[-1, ]
   myresults<-cbind(myresults,header)
-  myresults
-}
-
-# cleanup.GARFO.table does minimal cleanup. converts strings to dates. removes **s from the sub-acl field. 
-cleanup.GARFO.table <- function(indirty) {
-  # myt <- as.data.frame(data.table::rbindlist(indirty))
-  myt <- as.data.frame(indirty)
-  myt$report_date<-as.Date(myt$report_date,"%B %d,%Y")
-  myt$data_date<-as.Date(myt$data_date,"%B %d,%Y")
-  names(myt)[names(myt) == 'Sub-ACL** (mt)'] <- 'SubACL'
-  names(myt)[names(myt) == 'Sub-ACL (mt)'] <- 'SubACL'
-  names(myt)[names(myt) == 'Cumulative Kept (mt)'] <- 'CumulativeKept'
-  names(myt)[names(myt) == 'Cumulative Discard (mt)'] <- 'CumulativeDiscard'
-  names(myt)[names(myt) == 'Cumulative Catch (mt)'] <- 'CumulativeCatch'
-  names(myt)[names(myt) == 'Percent Caught'] <- 'PercentCaught'
+  myresults$report_date<-as.Date(myresults$report_date,"%B %d,%Y")
+  myresults$data_date<-as.Date(myresults$data_date,"%B %d,%Y")
   
-  myt
+  names(myresults)[names(myresults) == 'Sub-ACL** (mt)'] <- 'SubACL'
+  names(myresults)[names(myresults) == 'Sub-ACL (mt)'] <- 'SubACL'
+  names(myresults)[names(myresults) == 'Quota (mt)'] <- 'Quota'
+  names(myresults)[names(myresults) == 'Catch Cap'] <- 'CatchCap'
+  names(myresults)[names(myresults) == 'Cumulative Kept (mt)'] <- 'CumulativeKept'
+  names(myresults)[names(myresults) == 'Cumulative Discard (mt)'] <- 'CumulativeDiscard'
+  names(myresults)[names(myresults) == 'Cumulative Catch (mt)'] <- 'CumulativeCatch'
+  names(myresults)[names(myresults) == 'Percent Quota Caught'] <- 'PercentQuotaCaught'
+    names(myresults)[names(myresults) == 'Percent Caught'] <- 'PercentCaught'
+  myresults
 }
 
 ############################################# 
 ###########Actually do some stuff############ 
 ############################################# 
-myresults<-lapply(tables.to.parse,read.in.combine)
-myclean<-lapply(myresults,cleanup.GARFO.table)
+myclean<-lapply(tables.to.parse,read.in.combine)
 
 #without unlist, mget(load(x)) puts my dataframes into a list of lists.  The unlist with recursive=false 'flattens' one level of listing
 my.old.data<-unlist(lapply(storage.locations,function(x) mget(load(x))), recursive=FALSE)
 
-
 # I should lapply this, but I'm sick of this.  I'm writing a loop.
 # assert that myclean and my.old.data are the same length
 len.clean<-length(myclean)
+
+
 len.old<-length(my.old.data)
 len.clean==len.old
 
@@ -114,7 +128,15 @@ out_data<-NULL
   # assign(paste(dataset.names[[i]]) to something?
 for (i in 1:len.clean) {
   #Rbind the new and old together
+  
+{  if (nrow(my.old.data[[i]])==0 ) {
+  temp<-myclean[[i]]
+  }
+  else{
   temp<-rbind(my.old.data[[i]],myclean[[i]])
+  }
+}
+  
   #Strip out duplicates
   temp<-unique(temp)
   
@@ -123,7 +145,7 @@ for (i in 1:len.clean) {
   # assign the values of temp to a new dataframe
   name<-paste(dataset.names[[i]])
   assign(name, temp)
-  save(list=name, file=storage[[i]])
+  save(list=name, file=storage.locations[[i]])
   write.dta(temp, file.path(YOUR.OUTPUT.PATH,paste0(dataset.names[[i]],".dta")))
   
   #shouldn't be necessary, but just in case
