@@ -3,6 +3,9 @@
 	B. Calls an R file to pull in other quota monitoring from the internet 
 	C. Does some graphing.
 	D. Sticks the stata dataset and Rdata file onto my shared drive.
+	
+You have added this to your crontab with
+44 10 * * * /dir/to/stata/install/stata -b do '"/dir/to/code/folder/batch_download_quota_monitoring.do"' >> /tmp/cronlog.txt 2>&1
 */
 
 
