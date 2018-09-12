@@ -3,6 +3,8 @@
 # This R script pulls in  groundfish quota monitoring from the GARFO website.  
 # It does minimal data cleaning and saves the results in .Rdata and .dta format.
 # It currently pulls in only the Sector and Common Pool data. 
+# Common pool is going to be a pain because there are trimester TACs for some stocks. For the trimester stocks, catch can be rolled forward/back. So there may be extra columns.
+# and whole-year TACs for others.
 ###########################################################
 ###########################################################
 
@@ -102,7 +104,9 @@ read.in.combine <- function(mytable) {
   names(myresults)[names(myresults) == 'Cumulative Discard (mt)'] <- 'CumulativeDiscard'
   names(myresults)[names(myresults) == 'Cumulative Catch (mt)'] <- 'CumulativeCatch'
   names(myresults)[names(myresults) == 'Percent Quota Caught'] <- 'PercentQuotaCaught'
-    names(myresults)[names(myresults) == 'Percent Caught'] <- 'PercentCaught'
+  names(myresults)[names(myresults) == 'Percent Caught'] <- 'PercentCaught'
+  names(myresults)[names(myresults) == 'Overage (mt)*'] <- 'Overage'
+  names(myresults)[names(myresults) == 'Adjusted Catch (mt)**'] <- 'AdjustedCatch'
   myresults
 }
 
