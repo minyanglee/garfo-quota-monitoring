@@ -6,6 +6,8 @@
 	
 You have added this to your crontab with
 44 10 * * * /dir/to/stata/install/stata -b do '"/dir/to/code/folder/batch_download_quota_monitoring.do"' >> /tmp/cronlog.txt 2>&1
+
+I'm graphing trimester level common pool stuff. but you could do other things, the data is all there
 */
 
 
@@ -21,7 +23,9 @@ global Rterm_options `"--vanilla"'
 global Rterm_path `"/usr/bin/R"'
 
 
-rsource using "/home/mlee/Documents/projects/scraper/code/readin_groundfish_from_web.R"
+rsource using "/home/mlee/Documents/projects/scraper/code/readin_sectors_from_web.R"
+clear
+rsource using "/home/mlee/Documents/projects/scraper/code/readin_commonpool_from_web.R"
 clear
 rsource using "/home/mlee/Documents/projects/scraper/code/readin_others_from_web.R"
 
@@ -36,20 +40,22 @@ local groundshorty: subinstr local mygrounddtas ".dta" "", all
 /* Graphing for groundfish */
 foreach file of local groundshorty{
 	use "$grounddir/`file'.dta", clear
-	format report_date data_date %td
-	
-	foreach var of varlist CumulativeKept CumulativeDiscard CumulativeCatch SubACL PercentCaught{
+	format reportdate datadate %td
+	decode title, gen(mytitle)
+	replace mytitle=ltrim(rtrim(itrim(mytitle)))
+	drop if strmatch(mytitle,"Summary Table Common Pool Full Year*")
+	foreach var of varlist cumulativekept cumulativediscard cumulativecatch subacl percentcaught{
 	egen c`var'=sieve(`var'), char(0123456789.)
 	drop `var'
 	rename c`var' `var'
 	destring `var', replace
 	}
 
-	egen cstock=sieve(Stock), omit("/")
+	egen cstock=sieve(stock), omit("/")
 	encode cstock, gen(mystock)
 	drop cstock
-	xtset mystock data_date
-	xtline Percent
+	xtset mystock datadate
+	xtline percent
 	graph export "`file'_pct.eps", as(eps) replace 
 
 
@@ -59,26 +65,26 @@ local othershorty: subinstr local otherdta ".dta" "", all
 /* Graphing for herring */
 foreach file of local othershorty{
 	use "$otherdir/`file'.dta", clear
-	format report_date  %td
+	format reportdate  %td
 
 	/* Rename the first variable "Stock" */
 	qui desc, varlist
 	local myf: word 1 of `r(varlist)'
-	rename `myf' Stock
-	egen cstock=sieve(Stock), omit("/")
+	rename `myf' stock
+	egen cstock=sieve(stock), omit("/")
 	encode cstock, gen(mystock)
 	drop cstock
-	xtset mystock report_date
+	xtset mystock reportdate
 	
-	foreach var of varlist Percent{
+	foreach var of varlist percent{
 	egen c`var'=sieve(`var'), char(0123456789.)
 	drop `var'
 	rename c`var' `var'
 	destring `var', replace
 	}
 
-	xtset mystock report_date
-	xtline Percent
+	xtset mystock reportdate
+	xtline percent
 	graph export "`file'_pct.eps", as(eps) replace 
 
 }
