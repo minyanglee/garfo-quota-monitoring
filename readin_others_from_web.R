@@ -15,7 +15,7 @@ library(foreign)
 library(data.table)
 
 YOUR.PROJECT.PATH<-"/home/mlee/Documents/projects/scraper/"
-YOUR.OUTPUT.PATH<-"/home/mlee/Documents/projects/scraper/daily_data_out/other"
+YOUR.OUTPUT.PATH<-"/home/mlee/Documents/projects/scraper/daily_data_out/herrings"
 
 setwd(YOUR.PROJECT.PATH)
 

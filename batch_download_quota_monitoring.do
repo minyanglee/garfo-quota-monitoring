@@ -1,6 +1,6 @@
 /* This do file:
 	A. Calls an R file to pull in groundfish quota monitoring from the internet
-	B. Calls an R file to pull in other quota monitoring from the internet 
+	B. Calls an R file to pull in herrings quota monitoring from the internet 
 	C. Does some graphing.
 	D. Sticks the stata dataset and Rdata file onto my shared drive.
 	
@@ -27,15 +27,20 @@ rsource using "/home/mlee/Documents/projects/scraper/code/readin_sectors_from_we
 clear
 rsource using "/home/mlee/Documents/projects/scraper/code/readin_commonpool_from_web.R"
 clear
-rsource using "/home/mlee/Documents/projects/scraper/code/readin_others_from_web.R"
+rsource using "/home/mlee/Documents/projects/scraper/code/readin_herringss_from_web.R"
+
+clear
+rsource using "/home/mlee/Documents/projects/scraper/code/readin_mid_species_from_web.R"
 
 global grounddir "/home/mlee/Documents/projects/scraper/daily_data_out/groundfish"
-global otherdir "/home/mlee/Documents/projects/scraper/daily_data_out/other"
+global herringsdir "/home/mlee/Documents/projects/scraper/daily_data_out/herrings"
+global middir "/home/mlee/Documents/projects/scraper/daily_data_out/mid"
 
 local mygrounddtas: dir "$grounddir" files "*.dta"
 local groundshorty: subinstr local mygrounddtas ".dta" "", all
 
-
+local mymiddtas: dir "$middir" files "*.dta"
+local midshorty: subinstr local mymiddtas ".dta" "", all
 
 /* Graphing for groundfish */
 foreach file of local groundshorty{
@@ -60,11 +65,11 @@ foreach file of local groundshorty{
 
 
 }
-local otherdta: dir "$otherdir" files "*.dta"
-local othershorty: subinstr local otherdta ".dta" "", all
+local herringsdta: dir "$herringsdir" files "*.dta"
+local herringsshorty: subinstr local herringsdta ".dta" "", all
 /* Graphing for herring */
-foreach file of local othershorty{
-	use "$otherdir/`file'.dta", clear
+foreach file of local herringsshorty{
+	use "$herringsdir/`file'.dta", clear
 	format reportdate  %td
 
 	/* Rename the first variable "Stock" */
@@ -88,6 +93,11 @@ foreach file of local othershorty{
 	graph export "`file'_pct.eps", as(eps) replace 
 
 }
+
+/* Graphing for herringss */
+
+
+
 /* copy the pictures to my shared drive */
 ! cp *.eps "$my_network/quota_monitoring/graphs"
 /* copy the data to my shared drive */
