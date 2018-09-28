@@ -27,7 +27,7 @@ rsource using "/home/mlee/Documents/projects/scraper/code/readin_sectors_from_we
 clear
 rsource using "/home/mlee/Documents/projects/scraper/code/readin_commonpool_from_web.R"
 clear
-rsource using "/home/mlee/Documents/projects/scraper/code/readin_herringss_from_web.R"
+rsource using "/home/mlee/Documents/projects/scraper/code/readin_herrings_from_web.R"
 
 clear
 rsource using "/home/mlee/Documents/projects/scraper/code/readin_mid_species_from_web.R"
@@ -94,7 +94,7 @@ foreach file of local herringsshorty{
 
 }
 
-/* Graphing for herringss */
+/* Graphing for herrings */
 
 
 
