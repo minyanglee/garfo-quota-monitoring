@@ -19,5 +19,7 @@ readin_others_from_web.R is an R script to download and parse the herring, haddo
 
 readin_mid_species_from_web.R is an R script to download and parse the some of the mid-atlantic tables: Bluefish, Black Sea Bass, Fluke, Dogfish, and Scup.  These tables are differently stored than the groundfish and RH tables.
 
-# Stata Wrapper
-batch_download_quota_monitoring.do is a stata .do file that calls the scripts above. It makes some simple exploratory graphs and copies data and graphs to a shared drive where people can see it.  You'll need stata to run this file.  
+# Stata
++ batch_download_quota_monitoring.do is a stata .do file that calls the scripts above. It makes some simple exploratory graphs and copies data and graphs to a shared drive where people can see it.  You'll need stata to run this file.  
+
++ federal_register_scraper.do will use the federalregister api to download federal register documents that match search terms. 
