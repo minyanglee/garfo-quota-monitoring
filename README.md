@@ -1,7 +1,9 @@
-# garfo-quota-monitoring
-A collection of code to scrape GARFO's quota monitoring pages. GARFO does quota monitoring updates every week, but the old versions are not updated on the internet.  This collection of code parses the GARFO quota monitoring tables and stores the data contained in those tables.  The construction (column headings in particular) of the tables varies slightly by FMP, so slightly different code is requires for many of these.
+This is a small collection of files that scrape the internet.
 
-# R scripts
+# GARFO Scraper
+The Greater Atlantic Regional Fisheries Office hosts a set of quota monitoring pages.  The quota monitoring are updated every week, but the old versions are not archived on the internet.  This collection of code parses the GARFO quota monitoring tables and stores the data contained in those tables.  The construction (column headings in particular) of the tables varies slightly by FMP, so slightly different code is often required.
+ 
+## R scripts
 These R scripts should run with very minor changes to directories
 
 readin_sectors_from_web.R is an R script to download and parse the Sector Summary html tables.
@@ -19,7 +21,9 @@ readin_others_from_web.R is an R script to download and parse the herring, haddo
 
 readin_mid_species_from_web.R is an R script to download and parse the some of the mid-atlantic tables: Bluefish, Black Sea Bass, Fluke, Dogfish, and Scup.  These tables are differently stored than the groundfish and RH tables.
 
-# Stata
+## Stata
 + batch_download_quota_monitoring.do is a stata .do file that calls the scripts above. It makes some simple exploratory graphs and copies data and graphs to a shared drive where people can see it.  You'll need stata to run this file.  
 
-+ federal_register_scraper.do will use the federalregister api to download federal register documents that match search terms. 
+# A Federal Register Scraper
+
+federal_register_scraper.do will use the federalregister api to download federal register documents that match search terms. 
