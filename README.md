@@ -1,4 +1,4 @@
-This is a small collection of files that scrape the internet.  These have not been tested since 2019.
+This is a small collection of files that scrape the internet.  These have not been tested since 2019.  I have archived this on May 5, 2021.
 
 # GARFO Scraper
 The Greater Atlantic Regional Fisheries Office hosts a set of quota monitoring pages.  The quota monitoring are updated every week, but the old versions are not archived on the internet.  This collection of code parses the GARFO quota monitoring tables and stores the data contained in those tables.  The construction (column headings in particular) of the tables varies slightly by FMP, so slightly different code is often required.
